@@ -21,28 +21,43 @@ describe('HeroesComponent', () => {
   });
 
   it('[CRITICAL] should display list of heroes', () => {
+    // Arrange
+    const expectedLength = HEROES.length;
+
+    // Act
     const heroButtons = compiled.querySelectorAll('ul.heroes li button');
-    expect(heroButtons.length).toBe(HEROES.length);
+
+    // Assert
+    expect(heroButtons.length).toBe(expectedLength);
   });
 
   it('[CRITICAL] should display selected hero details when clicked', () => {
+    // Arrange
+    const firstHero = HEROES[0];
     const heroButtons = compiled.querySelectorAll('ul.heroes li button');
+
+    // Act
     (heroButtons[0] as HTMLButtonElement).click();
     fixture.detectChanges();
 
+    // Assert
     const detailSection = compiled.querySelector('div');
-    expect(detailSection?.textContent).toContain(HEROES[0].name.toUpperCase());
+    expect(detailSection?.textContent).toContain(firstHero.name.toUpperCase());
   });
 
   it('[LOW] should update hero name in input box', () => {
-    component.onSelect(HEROES[1]);
+    // Arrange
+    const heroToSelect = HEROES[1];
+    component.onSelect(heroToSelect);
     fixture.detectChanges();
-
     const input: HTMLInputElement = compiled.querySelector('#hero-name')!;
+
+    // Act
     input.value = 'New Hero';
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
+    // Assert
     expect(component.selectedHero?.name).toBe('New Hero');
   });
 });
