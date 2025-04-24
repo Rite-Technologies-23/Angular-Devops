@@ -20,12 +20,12 @@ describe('HeroesComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should display list of heroes', () => {
+  it('[CRITICAL] should display list of heroes', () => {
     const heroButtons = compiled.querySelectorAll('ul.heroes li button');
     expect(heroButtons.length).toBe(HEROES.length);
   });
 
-  it('should display selected hero details when clicked', () => {
+  it('[CRITICAL] should display selected hero details when clicked', () => {
     const heroButtons = compiled.querySelectorAll('ul.heroes li button');
     (heroButtons[0] as HTMLButtonElement).click();
     fixture.detectChanges();
@@ -34,7 +34,7 @@ describe('HeroesComponent', () => {
     expect(detailSection?.textContent).toContain(HEROES[0].name.toUpperCase());
   });
 
-  it('should update hero name in input box', () => {
+  it('[LOW] should update hero name in input box', () => {
     component.onSelect(HEROES[1]);
     fixture.detectChanges();
 
