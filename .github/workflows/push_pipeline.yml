@@ -51,6 +51,10 @@ jobs:
             echo "⚠️ Test report not found. Skipping CRITICAL test check."
           fi
 
+      - name: Convert XML to HTML
+        run: |
+          npx junit2html test-results/test-results.xml test-results/test-report.html
+
       - name: Enforce Code Coverage Threshold
         run: |
           COVERAGE_FILE=$(find ./coverage -name 'coverage-summary.json' | head -n 1)
@@ -65,7 +69,7 @@ jobs:
             echo "Code coverage is acceptable."
           fi
 
-      - name: Upload Test Report (HTML)
+      - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: Angular-Test-Report
