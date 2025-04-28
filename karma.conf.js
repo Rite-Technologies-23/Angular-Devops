@@ -7,6 +7,7 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
+      require('karma-junit-reporter'),  // Add this plugin for JUnit reporting
       require('@angular-devkit/build-angular/plugins/karma')
     ],
     client: {
@@ -16,13 +17,18 @@ module.exports = function (config) {
       dir: require('path').join(__dirname, './coverage/angular.io-example'),
       subdir: 'lcov-report',
       reporters: [
-        { type: 'html' },         // generates ./coverage/angular.io-example/lcov-report/index.html
+        { type: 'html' },
         { type: 'text-summary' },
         { type: 'lcovonly' },
-        { type: 'json-summary' }  // needed for GitHub Actions to enforce coverage thresholds
+        { type: 'json-summary' }
       ]
     },
-    reporters: ['progress', 'kjhtml', 'coverage'],  // Include 'kjhtml' for Jasmine HTML reporter
+    reporters: ['progress', 'kjhtml', 'coverage', 'junit'],  // Include 'junit' reporter here
+    junitReporter: {
+      outputDir: 'test-results',  // Specify the directory where the XML report will be saved
+      outputFile: 'test-results.xml',
+      useBrowserName: false  // Don't include browser name in the filename
+    },
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
