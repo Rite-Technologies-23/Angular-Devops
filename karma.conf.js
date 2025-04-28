@@ -7,8 +7,7 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
-      require('@angular-devkit/build-angular/plugins/karma'),
-      require('karma-junit-reporter')  // Add the JUnit Reporter
+      require('@angular-devkit/build-angular/plugins/karma')
     ],
     client: {
       clearContext: false // leave Jasmine Spec Runner output visible in browser
@@ -23,12 +22,7 @@ module.exports = function (config) {
         { type: 'json-summary' }  // needed for GitHub Actions to enforce coverage thresholds
       ]
     },
-    reporters: ['progress', 'kjhtml', 'coverage', 'junit'],  // Include junit reporter in the list of reporters
-    junitReporter: {
-      outputDir: 'test-results',  // Directory where the JUnit XML will be saved
-      outputFile: 'test-results.xml', // File name for the JUnit report
-      useBrowserName: false  // Avoid appending the browser name to the report
-    },
+    reporters: ['progress', 'kjhtml', 'coverage'],  // Include 'kjhtml' for Jasmine HTML reporter
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
