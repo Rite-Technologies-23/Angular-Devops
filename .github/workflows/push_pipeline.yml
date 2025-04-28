@@ -51,9 +51,9 @@ jobs:
             echo "⚠️ Test report not found. Skipping CRITICAL test check."
           fi
 
-      - name: Convert XML to HTML
+      - name: Convert XML to HTML using jest-html-reporter
         run: |
-          npx junit2html test-results/test-results.xml test-results/test-report.html
+          npx jest-html-reporter --input=test-results/test-results.xml --output=test-results/test-report.html
 
       - name: Enforce Code Coverage Threshold
         run: |
