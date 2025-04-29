@@ -92,23 +92,16 @@ jobs:
           OUTPUT_PATH="test-results/beautified/lcov-report.html"
 
           if [[ -f "$LCOV_PATH" && -f "$TEMPLATE_PATH" ]]; then
-            echo "Generating beautified LCOV report..."
-            node <<EOF
-const fs = require('fs');
-const lcovContent = fs.readFileSync('$LCOV_PATH', 'utf8');
-const template = fs.readFileSync('$TEMPLATE_PATH', 'utf8');
-const safeLcov = '<pre>' + lcovContent.replace(/&/g, '&amp;')
-                                      .replace(/</g, '&lt;')
-                                      .replace(/>/g, '&gt;')
-                                      .replace(/"/g, '&quot;')
-                                      .replace(/'/g, '&#039;') +
-                 '</pre>';
-const output = template.replace('{{ LCOV_CONTENT }}', safeLcov);
-fs.writeFileSync('$OUTPUT_PATH', output);
-EOF
-            echo "Beautified LCOV report generated at $OUTPUT_PATH"
+            node -e "
+              const fs = require('fs');
+              const lcovContent = fs.readFileSync('$LCOV_PATH', 'utf8').replace(/`/g, '\\`');
+              const template = fs.readFileSync('$TEMPLATE_PATH', 'utf8');
+              const result = template.replace('{{ LCOV_CONTENT }}', '<pre>' + lcovContent + '</pre>');
+              fs.writeFileSync('$OUTPUT_PATH', result);
+              console.log('Beautified LCOV report generated at $OUTPUT_PATH');
+            "
           else
-            echo 'Required LCOV file or template not found.'
+            echo "Required LCOV file or template not found."
             exit 1
           fi
 
