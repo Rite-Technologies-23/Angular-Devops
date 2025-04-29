@@ -73,7 +73,7 @@ jobs:
 
       - name: Convert JUnit XML to HTML
         run: |
-          junit2html test-results/test-results.xml test-results/test-results.html --show-passed
+          junit2html test-results/test-results.xml test-results/test-results.html
 
       - name: Upload LCOV HTML Coverage Report
         uses: actions/upload-artifact@v4
