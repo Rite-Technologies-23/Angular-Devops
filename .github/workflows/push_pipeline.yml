@@ -39,7 +39,7 @@ jobs:
         run: |
           REPORT="./test-results/test-results.xml"
           echo "Parsing $REPORT for failed CRITICAL tests..."
-
+          
           if [[ -f "$REPORT" ]]; then
             FAILED_CRITICAL=$(awk '/<testcase/ {test=$0} /<failure/ {if (test ~ /\[CRITICAL\]/) print test}' "$REPORT" | wc -l)
             if [[ "$FAILED_CRITICAL" -gt 0 ]]; then
@@ -72,17 +72,28 @@ jobs:
           name: Angular-LCOV-HTML-Report
           path: test-results/lcov-html
 
-      - name: Upload JUnit XML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Angular-JUnit-Report
-          path: test-results/test-results.xml
-
       - name: Upload Raw Coverage Files
         uses: actions/upload-artifact@v4
         with:
           name: Angular-Coverage-Report
           path: coverage/
+
+      - name: Upload Raw JUnit XML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Angular-JUnit-Report
+          path: test-results/test-results.xml
+
+      - name: Convert JUnit XML to HTML
+        run: |
+          pip install junit2html
+          junit2html --input test-results/test-results.xml --output test-results/test-results.html
+
+      - name: Upload JUnit HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Angular-JUnit-HTML-Report
+          path: test-results/test-results.html
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
