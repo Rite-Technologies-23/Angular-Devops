@@ -25,17 +25,17 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Tests and Generate Coverage Report
+      - name: Install Karma JUnit Reporter
+        run: npm install karma-junit-reporter --save-dev
+
+      - name: Run Tests and Generate Coverage & JUnit Reports
         run: |
           mkdir -p test-results
-          npx ng test --watch=false --browsers=ChromeHeadless --code-coverage --karma-config=karma.conf.js || true
-          cp coverage/*/lcov-report/index.html test-results/test-report.html
+          npx ng test --watch=false --browsers=ChromeHeadless --karma-config=karma.conf.js || true
+          cp coverage/angular.io-example/lcov-report/index.html test-results/test-report.html
 
       - name: Check for Failed CRITICAL Tests
         run: |
-          mkdir -p test-results
-          npx ng test --watch=false --browsers=ChromeHeadless --reporters=junit --karma-config=karma.conf.js || true
-          
           REPORT=$(find ./test-results -name "*.xml" | head -n 1)
           echo "Parsing $REPORT for failed CRITICAL tests..."
 
