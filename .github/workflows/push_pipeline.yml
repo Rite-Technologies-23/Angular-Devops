@@ -35,29 +35,6 @@ jobs:
           sudo apt-get update && sudo apt-get install -y lcov
           genhtml coverage/angular.io-example/coverage/lcov.info --output-directory test-results/lcov-html
 
-      - name: Capture LCOV Report Content
-        id: capture_lcov
-        run: |
-          echo "Reading lcov.info..."
-          LCOV_CONTENT=$(cat coverage/angular.io-example/coverage/lcov.info | base64 | tr -d '\n')
-          echo "lcov_base64=$LCOV_CONTENT" >> $GITHUB_OUTPUT
-
-      - name: Generate Beautified LCOV Report
-        run: |
-          mkdir -p test-results/beautified
-          LCOV_CONTENT=$(echo "${{ steps.capture_lcov.outputs.lcov_base64 }}" | base64 --decode)
-          TEMPLATE_PATH="coverage-templates/beautified-lcov-template.html"
-          OUTPUT_PATH="test-results/beautified/lcov-report.html"
-
-          if [[ -f "$TEMPLATE_PATH" ]]; then
-            # Replace placeholder with actual LCOV content
-            sed "s|{{ LCOV_CONTENT }}|<pre>${LCOV_CONTENT}</pre>|g" "$TEMPLATE_PATH" > "$OUTPUT_PATH"
-            echo "Beautified report generated at $OUTPUT_PATH"
-          else
-            echo "Template file not found!"
-            exit 1
-          fi
-
       - name: Check for Failed CRITICAL Tests
         run: |
           REPORT="./test-results/test-results.xml"
@@ -95,11 +72,11 @@ jobs:
           name: Angular-LCOV-HTML-Report
           path: test-results/lcov-html
 
-      - name: Upload Beautified LCOV Report
+      - name: Upload Raw Coverage Files
         uses: actions/upload-artifact@v4
         with:
-          name: Angular-Beautified-LCOV
-          path: test-results/beautified/lcov-report.html
+          name: Angular-Coverage-Report
+          path: coverage/
 
       - name: Upload JUnit XML Report
         uses: actions/upload-artifact@v4
@@ -107,11 +84,33 @@ jobs:
           name: Angular-JUnit-Report
           path: test-results/test-results.xml
 
-      - name: Upload Raw Coverage Files
+      - name: Generate Beautified LCOV Report
+        run: |
+          mkdir -p test-results/beautified
+          LCOV_PATH="coverage/angular.io-example/coverage/lcov.info"
+          TEMPLATE_PATH="coverage-templates/beautified-lcov-template.html"
+          OUTPUT_PATH="test-results/beautified/lcov-report.html"
+
+          if [[ -f "$LCOV_PATH" && -f "$TEMPLATE_PATH" ]]; then
+            LCOV_CONTENT=$(cat "$LCOV_PATH")
+            node -e "
+              const fs = require('fs');
+              const template = fs.readFileSync('$TEMPLATE_PATH', 'utf8');
+              const lcov = \`<pre>${LCOV_CONTENT.replace(/`/g, '\\`')}</pre>\`;
+              const output = template.replace('{{ LCOV_CONTENT }}', lcov);
+              fs.writeFileSync('$OUTPUT_PATH', output);
+            "
+            echo "Beautified LCOV report generated at $OUTPUT_PATH"
+          else
+            echo 'Required LCOV file or template not found.'
+            exit 1
+          fi
+
+      - name: Upload Beautified LCOV Report
         uses: actions/upload-artifact@v4
         with:
-          name: Angular-Coverage-Report
-          path: coverage/
+          name: Beautified-LCOV-Report
+          path: test-results/beautified/lcov-report.html
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
