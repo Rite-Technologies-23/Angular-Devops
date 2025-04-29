@@ -66,6 +66,15 @@ jobs:
             echo "Code coverage is acceptable."
           fi
 
+      - name: Install junit2html
+        run: |
+          sudo apt-get install -y python3-pip
+          pip3 install junit2html
+
+      - name: Convert JUnit XML to HTML
+        run: |
+          junit2html test-results/test-results.xml > test-results/test-results.html
+
       - name: Upload LCOV HTML Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -77,10 +86,6 @@ jobs:
         with:
           name: Angular-JUnit-Report
           path: test-results/test-results.xml
-
-      - name: Convert JUnit XML to HTML
-        run: |
-          junit2html test-results/test-results.xml > test-results/test-results.html
 
       - name: Upload JUnit HTML Report
         uses: actions/upload-artifact@v4
