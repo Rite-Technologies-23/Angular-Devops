@@ -39,13 +39,13 @@ jobs:
           if [[ -f "$REPORT" ]]; then
             FAILED_CRITICAL=$(awk '/<testcase/ {test=$0} /<failure/ {if (test ~ /\[CRITICAL\]/) print test}' "$REPORT" | wc -l)
             if [[ "$FAILED_CRITICAL" -gt 0 ]]; then
-              echo "❌ $FAILED_CRITICAL CRITICAL test(s) failed."
+              echo "$FAILED_CRITICAL CRITICAL test(s) failed."
               exit 1
             else
-              echo "✅ All CRITICAL test cases passed."
+              echo "All CRITICAL test cases passed."
             fi
           else
-            echo "⚠️ Test report not found. Skipping CRITICAL test check."
+            echo "Test report not found. Skipping CRITICAL test check."
           fi
 
       - name: Upload Coverage Report
