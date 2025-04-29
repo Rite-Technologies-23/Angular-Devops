@@ -50,7 +50,7 @@ jobs:
 
       - name: Enforce Code Coverage Threshold
         run: |
-          COVERAGE_FILE=coverage/angular.io-example/coverage-summary.json
+          COVERAGE_FILE=coverage/angular.io-example/coverage/coverage-summary.json
           echo "Using coverage file: $COVERAGE_FILE"
           COVERAGE=$(node -p "require('./$COVERAGE_FILE').total.statements.pct")
           echo "Statements Coverage: $COVERAGE%"
