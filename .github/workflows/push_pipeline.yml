@@ -33,7 +33,7 @@ jobs:
       - name: Convert LCOV to HTML Report
         run: |
           sudo apt-get update && sudo apt-get install -y lcov
-          genhtml coverage/angular.io-example/lcov.info --output-directory test-results/lcov-html
+          genhtml coverage/angular.io-example/coverage/lcov.info --output-directory test-results/lcov-html
 
       - name: Check for Failed CRITICAL Tests
         run: |
@@ -54,7 +54,7 @@ jobs:
 
       - name: Enforce Code Coverage Threshold
         run: |
-          COVERAGE_FILE=coverage/angular.io-example/coverage-summary.json
+          COVERAGE_FILE=coverage/angular.io-example/coverage/coverage-summary.json
           echo "Using coverage file: $COVERAGE_FILE"
           COVERAGE=$(node -p "require('./$COVERAGE_FILE').total.statements.pct")
           echo "Statements Coverage: $COVERAGE%"
