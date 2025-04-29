@@ -25,40 +25,31 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Tests and Generate Coverage and JUnit Reports
+      - name: Run Tests and Generate Coverage Report
         run: |
           mkdir -p test-results
-          npx ng test --watch=false --browsers=ChromeHeadless \
-            --code-coverage --karma-config=karma.conf.js || true
+          npx ng test --watch=false --browsers=ChromeHeadless --code-coverage --karma-config=karma.conf.js || true
+          cp coverage/*/lcov-report/index.html test-results/test-report.html
 
       - name: Check for Failed CRITICAL Tests
         run: |
+          mkdir -p test-results
+          npx ng test --watch=false --browsers=ChromeHeadless --reporters=junit --karma-config=karma.conf.js || true
+          
           REPORT=$(find ./test-results -name "*.xml" | head -n 1)
           echo "Parsing $REPORT for failed CRITICAL tests..."
 
           if [[ -f "$REPORT" ]]; then
             FAILED_CRITICAL=$(awk '/<testcase/ {test=$0} /<failure/ {if (test ~ /\[CRITICAL\]/) print test}' "$REPORT" | wc -l)
             if [[ "$FAILED_CRITICAL" -gt 0 ]]; then
-              echo "$FAILED_CRITICAL CRITICAL test(s) failed."
+              echo "❌ $FAILED_CRITICAL CRITICAL test(s) failed."
               exit 1
             else
-              echo "All CRITICAL test cases passed."
+              echo "✅ All CRITICAL test cases passed."
             fi
           else
-            echo "Test report not found. Skipping CRITICAL test check."
+            echo "⚠️ Test report not found. Skipping CRITICAL test check."
           fi
-
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Angular-Coverage-Report
-          path: coverage/
-
-      - name: Upload JUnit Test Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Angular-JUnit-Test-Report
-          path: test-results/
 
       - name: Enforce Code Coverage Threshold
         run: |
@@ -73,6 +64,18 @@ jobs:
           else
             echo "Code coverage is acceptable."
           fi
+
+      - name: Upload Test Report (HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Angular-Test-Report
+          path: test-results/test-report.html
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Angular-Coverage-Report
+          path: coverage/
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
