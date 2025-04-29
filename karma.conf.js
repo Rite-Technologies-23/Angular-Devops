@@ -7,36 +7,22 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
-      require('karma-junit-reporter'),
-      require('karma-html-reporter'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
     client: {
-      clearContext: false
+      clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/angular.io-example'),
       subdir: 'lcov-report',
       reporters: [
-        { type: 'html' },
+        { type: 'html' },         // generates ./coverage/angular.io-example/lcov-report/index.html
         { type: 'text-summary' },
         { type: 'lcovonly' },
-        { type: 'json-summary' }
+        { type: 'json-summary' }  // needed for GitHub Actions to enforce coverage thresholds
       ]
     },
-    reporters: ['progress', 'kjhtml', 'coverage', 'junit', 'html'], 
-    
-    junitReporter: {
-      outputDir: 'test-results', 
-      outputFile: 'test-results.xml',
-      useBrowserName: false
-    },
-
-    htmlReporter: {
-      outputDir: 'test-results',
-      reportName: 'test-report',
-    },
-
+    reporters: ['progress', 'kjhtml', 'coverage'],  // Include 'kjhtml' for Jasmine HTML reporter
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
