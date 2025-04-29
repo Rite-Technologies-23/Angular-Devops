@@ -1,1 +1,1 @@
-# Angular_app_devops
+# CI/CD for angular code

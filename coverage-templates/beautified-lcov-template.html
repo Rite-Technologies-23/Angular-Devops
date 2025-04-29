@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Coverage Report</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="header">Code Coverage Report</h1>
+    <h2 class="total-coverage">Total Coverage</h2>
+    <p class="coverage-stat">Statements Coverage: <span id="statements"></span></p>
+    <p class="coverage-stat">Branches Coverage: <span id="branches"></span></p>
+    <p class="coverage-stat">Functions Coverage: <span id="functions"></span></p>
+    <p class="coverage-stat">Lines Coverage: <span id="lines"></span></p>
+
+    <h2 class="file-coverage">Detailed Coverage by File</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Statements</th>
+          <th>Branches</th>
+          <th>Functions</th>
+          <th>Lines</th>
+        </tr>
+      </thead>
+      <tbody id="coverage-data"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // JavaScript code to insert LCOV data dynamically
+    const lcovData = {{ LCOV_DATA }};
+    document.getElementById('statements').textContent = lcovData.statementsCoverage + '%';
+    document.getElementById('branches').textContent = lcovData.branchesCoverage + '%';
+    document.getElementById('functions').textContent = lcovData.functionsCoverage + '%';
+    document.getElementById('lines').textContent = lcovData.linesCoverage + '%';
+
+    const coverageData = lcovData.files.map(file => {
+      return `<tr>
+        <td>${file.name}</td>
+        <td>${file.statementsCoverage}</td>
+        <td>${file.branchesCoverage}</td>
+        <td>${file.functionsCoverage}</td>
+        <td>${file.linesCoverage}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('coverage-data').innerHTML = coverageData;
+  </script>
+</body>
+</html>
