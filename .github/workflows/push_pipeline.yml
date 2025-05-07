@@ -55,7 +55,6 @@ jobs:
             echo "Test report not found. Skipping CRITICAL test check."
           fi
 
-
       - name: Generate HTML Coverage Report
         run: |
           genhtml coverage/angular.io-example/coverage/lcov.info \
@@ -64,6 +63,11 @@ jobs:
             --show-details \
             --highlight \
             --legend
+
+      - name: Beautify LCOV HTML Report
+        run: |
+          cp lcov-style.css test-results/lcov-html/
+          sed -i 's|</head>|<link rel="stylesheet" href="lcov-style.css">\n</head>|' test-results/lcov-html/index.html
 
       - name: Enforce Coverage Threshold
         run: |
