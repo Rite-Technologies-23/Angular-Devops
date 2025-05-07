@@ -1,12 +1,10 @@
-name: "Test and build Angular app"
+name: "Test and Build Angular App"
 
 on:
   push:
-    branches:
-      - '*'
+    branches: ['*']
   pull_request:
-    branches:
-      - '*'
+    branches: ['*']
 
 jobs:
   build:
@@ -14,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -25,15 +23,20 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Tests and Generate Reports
+      - name: Run Tests and Generate Coverage
         run: |
           mkdir -p test-results
-          npx ng test --watch=false --browsers=ChromeHeadless --karma-config=karma.conf.js || true
+          npx ng test --watch=false --browsers=ChromeHeadless --code-coverage --karma-config=karma.conf.js || true
 
-      - name: Convert LCOV to HTML Report
+      - name: Install Coverage & Reporting Tools
         run: |
-          sudo apt-get update && sudo apt-get install -y lcov
-          genhtml coverage/angular.io-example/coverage/lcov.info --output-directory test-results/lcov-html
+          sudo apt-get update
+          sudo apt-get install -y lcov python3-pip
+          pip3 install junit2html
+
+      - name: Convert JUnit XML to HTML
+        run: |
+          junit2html test-results/test-results.xml test-results/test-report.html
 
       - name: Check for Failed CRITICAL Tests
         run: |
@@ -50,9 +53,17 @@ jobs:
             fi
           else
             echo "Test report not found. Skipping CRITICAL test check."
-          fi
 
-      - name: Enforce Code Coverage Threshold
+      - name: Generate HTML Coverage Report
+        run: |
+          genhtml coverage/angular.io-example/coverage/lcov.info \
+            --output-directory test-results/lcov-html \
+            --title "Angular Test Coverage Report" \
+            --show-details \
+            --highlight \
+            --legend
+
+      - name: Enforce Coverage Threshold
         run: |
           COVERAGE_FILE=coverage/angular.io-example/coverage/coverage-summary.json
           echo "Using coverage file: $COVERAGE_FILE"
@@ -60,43 +71,34 @@ jobs:
           echo "Statements Coverage: $COVERAGE%"
           THRESHOLD=75
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
-            echo "Code coverage is below the required $THRESHOLD% threshold."
+            echo "Code coverage is below required $THRESHOLD% threshold."
             exit 1
           else
             echo "Code coverage is acceptable."
           fi
 
-      - name: Install junit2html
-        run: |
-          sudo apt-get install -y python3-pip
-          pip3 install junit2html
-
-      - name: Convert JUnit XML to HTML
-        run: |
-          junit2html test-results/test-results.xml test-results/test-results.html
-
-      - name: Upload LCOV HTML Coverage Report
+      - name: Upload HTML Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: Angular-LCOV-HTML-Report
-          path: test-results/lcov-html
-
-      - name: Upload JUnit XML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Angular-JUnit-Report
-          path: test-results/test-results.xml
+          name: Angular-Coverage-HTML
+          path: test-results/lcov-html/
 
       - name: Upload JUnit HTML Report
         uses: actions/upload-artifact@v4
         with:
-          name: Angular-JUnit-HTML-Report
-          path: test-results/test-results.html
+          name: Angular-JUnit-HTML
+          path: test-results/test-report.html
+
+      - name: Upload JUnit XML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Angular-JUnit-XML
+          path: test-results/test-results.xml
 
       - name: Upload Raw Coverage Files
         uses: actions/upload-artifact@v4
         with:
-          name: Angular-Coverage-Report
+          name: Angular-Raw-Coverage
           path: coverage/
 
       - name: SonarQube Scan
