@@ -53,6 +53,8 @@ jobs:
             fi
           else
             echo "Test report not found. Skipping CRITICAL test check."
+          fi
+
 
       - name: Generate HTML Coverage Report
         run: |
